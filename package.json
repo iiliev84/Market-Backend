@@ -1,0 +1,23 @@
+{
+  "name": "market-backend",
+  "version": "1.0.0",
+  "description": "Full-stack e-commerce platform where users can browse, review, and purchase products.",
+  "main": "middleware.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iiliev84/Market-Backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iiliev84/Market-Backend/issues"
+  },
+  "homepage": "https://github.com/iiliev84/Market-Backend#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
