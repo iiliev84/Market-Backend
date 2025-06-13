@@ -5,9 +5,9 @@ import db from "db/client";
 
 export async function (getReviewByID) {
     const query = `
-    SELECT 
+    SELECT *
     FROM reviews 
-    WHERE 
+    WHERE id = $1
     `; 
 
     const result = await db.query(query);
@@ -18,12 +18,12 @@ export async function (getReviewByID) {
 
 // Get All Reviews by Person ID 
 
-SELECT * 
-FROM Reviews 
-WHERE 
-
- const result = await db.query(query);
-    return result.rows; 
+export async function (getReviewsByPerson) {
+    const query = `
+    SELECT * 
+    FROM reviews 
+    WHERE reviewSubmitter 
+}
 
 
 
