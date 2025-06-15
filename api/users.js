@@ -14,6 +14,9 @@ router.route("/").get(async (req, res) => {
 
 router.post('/register', async (req, res, next) => {
   const {username, password} = req.body;
+  if (!username || !password) {
+    return res.status(400).send(`Missing username or password`);
+  }
   try{
     const hashedPassword = await bcrypt.hash(password, 5)
     const result = await db.query(`INSERT INTO users (username, password)
@@ -30,6 +33,9 @@ router.post('/register', async (req, res, next) => {
 
 router.post('/login', async(req,res,next) => {
   const {username, password} = req.body;
+  if (!username || !password) {
+    return res.status(400).send(`Missing username or password`);
+  }
   try {
     const result = await db.query(`SELECT * FROM users WHERE username = $1;`, [username]); 
     const realUserInfo = result.rows[0]
