@@ -4,8 +4,8 @@ export default router;
 import db from "#db/client";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
-import { getUsers } from "#db/queries/users"
-
+import { getUsers, getUserById } from "#db/queries/users"
+import {verifyToken} from "#middleware"
 
 router.route("/").get(async (req, res) => {
     const users = await getUsers();
@@ -14,6 +14,9 @@ router.route("/").get(async (req, res) => {
 
 router.post('/register', async (req, res, next) => {
   const {username, password} = req.body;
+  if (!username || !password) {
+    return res.status(400).send(`Missing username or password`);
+  }
   try{
     const hashedPassword = await bcrypt.hash(password, 5)
     const result = await db.query(`INSERT INTO users (username, password)
@@ -30,6 +33,9 @@ router.post('/register', async (req, res, next) => {
 
 router.post('/login', async(req,res,next) => {
   const {username, password} = req.body;
+  if (!username || !password) {
+    return res.status(400).send(`Missing username or password`);
+  }
   try {
     const result = await db.query(`SELECT * FROM users WHERE username = $1;`, [username]); 
     const realUserInfo = result.rows[0]
@@ -40,4 +46,10 @@ router.post('/login', async(req,res,next) => {
   }catch(error){
     console.log('Could not log in',error)
   }
+})
+
+router.route("/me").get(verifyToken, async(req,res,next)=>{
+const user = await getUserById(req.user.id)
+res.status(200).send(user)
+
 })
