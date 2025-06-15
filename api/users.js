@@ -4,8 +4,8 @@ export default router;
 import db from "#db/client";
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken';
-import { getUsers } from "#db/queries/users"
-
+import { getUsers, getUserById } from "#db/queries/users"
+import {verifyToken} from "#middleware"
 
 router.route("/").get(async (req, res) => {
     const users = await getUsers();
@@ -40,4 +40,10 @@ router.post('/login', async(req,res,next) => {
   }catch(error){
     console.log('Could not log in',error)
   }
+})
+
+router.route("/me").get(verifyToken, async(req,res,next)=>{
+const user = await getUserById(req.user.id)
+res.status(200).send(user)
+
 })
