@@ -1,8 +1,23 @@
 import express from "express";
 const router = express.Router();
 export default router;
+import { createProduct, getProductById, getProducts } from "../db/queries/products.js"
 
-import { createProduct } from "../db/queries/products.js"
+router.route("/").get(async (req, res) => {
+    const products = await getProducts();
+    res.send(products);
+});
+
+router.route("/:id").get(async (req,res)=>{
+  const {id} = req.params
+
+  const product = await getProductById(id)
+
+  if (!product){
+      return res.status(404).send({error: "ID does not exist."})
+    }
+    res.send(product)
+})
 
 router.route("/").post(async (req, res)=>{
     if(!req.body){

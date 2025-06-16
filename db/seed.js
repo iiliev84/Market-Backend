@@ -1,5 +1,6 @@
 import db from "./client.js"
 import { createProduct } from "./queries/products.js"
+import { createUser } from "./queries/users.js"
 
 
 await db.connect();
@@ -37,9 +38,5 @@ async function seedReviews() {
   await createReview({rating: 5, comment: "5 Stars: My 4-year-old absolutely loves this book! We've read it together every night for the past two weeks and she still asks to read it again!", product_id: 1, user_id: 1})
   await createReview({rating: 5, comment: "5 Stars: Great addition to our bedtime story collection. My twin boys (ages 3 and 3) both sit still for the entire book, which is saying something!", product_id: 8, user_id: 1})
   await createReview({rating: 5, comment: "5 Stars: Bought this for my daughter's 4th birthday and it was an instant favorite. She's now reading simple words on her own and this book is perfect for her level.", product_id: 7, user_id: 1})
-  await createReview({rating: 3, comment: "  3 Stars: Decent book overall. My 6-year-old enjoyed it but didn't love it as much as some of his other favorites. The story is fine and the illustrations are nice, but it didn't quite capture his imagination like I hoped it would.", product_id: 1, user_id: 2})
+  await createReview({rating: 3, comment: "3 Stars: Decent book overall. My 6-year-old enjoyed it but didn't love it as much as some of his other favorites. The story is fine and the illustrations are nice, but it didn't quite capture his imagination like I hoped it would.", product_id: 1, user_id: 2})
 }
-
-
-
-
