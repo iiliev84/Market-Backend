@@ -2,10 +2,12 @@ import express from "express";
 const app = express();
 export default app;
 import usersRouter from "#api/users";
+import productsRouter from "#api/products"
 
 app.use(express.json())
 
 app.use("/users", usersRouter);
+app.use("/products", productsRouter);
 
 app.get('/', async( req, res, next ) => {
   res.send('Welcome to the Market Bookstore!')
