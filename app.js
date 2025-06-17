@@ -3,7 +3,8 @@ const app = express();
 export default app;
 import usersRouter from "#api/users";
 import productsRouter from "#api/products"
-
+import cors from "cors";
+app.use(cors());
 app.use(express.json())
 
 app.use("/users", usersRouter);

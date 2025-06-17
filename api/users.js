@@ -42,7 +42,7 @@ router.post('/login', async(req,res,next) => {
     const isPWMatch = await bcrypt.compare(password, realUserInfo.password);
     if(!isPWMatch) return res.status(401).send('Not authorized');
     const token = jwt.sign({id: realUserInfo.id, username: realUserInfo.username},process.env.JWT_SECRET);
-    res.status(201).json(token);
+    res.status(201).json( {success:  true ,token});
   }catch(error){
     console.log('Could not log in',error)
   }
