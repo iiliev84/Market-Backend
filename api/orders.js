@@ -6,7 +6,7 @@ import {
   getOrderById,
   createOrder,
   deleteOrder
-} from "#db/queries/orders.js";
+} from "#db/queries/orders";
 
 router.get("/", async (req, res, next) => {
   try {
