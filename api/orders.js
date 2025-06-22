@@ -36,7 +36,6 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-// DELETE /orders/:id - delete order
 router.delete("/:id", async (req, res, next) => {
   try {
     const deleted = await deleteOrder(req.params.id);
