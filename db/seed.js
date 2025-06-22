@@ -1,6 +1,7 @@
 import db from "./client.js"
 import { createProduct } from "./queries/products.js"
 import { createUser } from "./queries/users.js"
+import { createOrder } from "./queries/orders.js";
 
 
 await db.connect();
