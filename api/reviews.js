@@ -1,24 +1,44 @@
 import express from "express";
+import {
+  getReviewsByProduct,
+  getUserReviewForProduct,
+  getReviewById,
+  createReview,
+  updateReview,
+  deleteReview,
+  hasUserReviewedProduct,
+  getAllReviewsByUser
+} from '../db/queries/reviews.js';
+
+console.log('=== REVIEWS MODULE LOADED ===');
+
 const router = express.Router();
 
 //Check to see if the user is logged in 
-
 const authenticateUser = (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });
   }
   next();
-  };
+};
 
 // pull all existing reviews for a user 
-
 router.get('/user/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    const reviews = await reviewsDB.getAllReviewsByUser(userId);
+    console.log('=== DEBUG: Fetching reviews for user:', userId);
+    console.log('=== DEBUG: userId type:', typeof userId);
+    console.log('=== DEBUG: parseInt(userId):', parseInt(userId));
+    
+    const reviews = await getAllReviewsByUser(parseInt(userId));
+    
+    console.log('=== DEBUG: Reviews found:', reviews);
+    console.log('=== DEBUG: Number of reviews:', reviews ? reviews.length : 'null/undefined');
+    
     res.json(reviews);
   } catch (error) {
-    console.error('Error fetching user reviews:', error);
+    console.error('=== ERROR fetching user reviews:', error);
+    console.error('=== ERROR stack:', error.stack);
     res.status(500).json({ error: 'Failed to fetch user reviews' });
   }
 });
@@ -27,52 +47,75 @@ router.get('/user/:userId', async (req, res) => {
 router.get('/product/:productId', async (req, res) => {
   try {
     const { productId } = req.params;
-    const reviews = await reviewsDB.getReviewsByProduct(productId);
+    console.log('=== DEBUG: Fetching reviews for product:', productId);
+    
+    const reviews = await getReviewsByProduct(parseInt(productId));
+    
+    console.log('=== DEBUG: Product reviews found:', reviews ? reviews.length : 'none');
+    
     res.json(reviews);
   } catch (error) {
-    console.error('Error fetching reviews:', error);
+    console.error('=== ERROR fetching reviews:', error);
     res.status(500).json({ error: 'Failed to fetch reviews' });
   }
 });
 
 // create a new review 
-
 router.post('/', authenticateUser, async (req, res) => {
   try {
     const { rating, comment, product_id } = req.body;
     const user_id = req.user.id; // From authentication middleware
+    
+    console.log('=== DEBUG: Creating review with data:', { rating, comment, product_id, user_id });
     
     // Basic validation
     if (!rating || !product_id) {
       return res.status(400).json({ error: 'Rating and product_id are required' });
     }
     
+    // Validate rating range
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    }
+    
     // see if the user has already reviewed this product
-    const hasReviewed = await reviewsDB.hasUserReviewedProduct(user_id, product_id);
+    const hasReviewed = await hasUserReviewedProduct(user_id, product_id);
+    console.log('=== DEBUG: User has already reviewed:', hasReviewed);
+    
     if (hasReviewed) {
       return res.status(409).json({ error: 'You have already reviewed this product' });
     }
     
     const reviewData = { rating, comment, product_id, user_id };
-    const newReview = await reviewsDB.createReview(reviewData);
+    const newReview = await createReview(reviewData);
+    
+    console.log('=== DEBUG: New review created:', newReview);
     
     res.status(201).json(newReview);
   } catch (error) {
-    console.error('Error creating review:', error);
+    console.error('=== ERROR creating review:', error);
     res.status(500).json({ error: 'Failed to create review' });
   }
 });
 
 // update a review 
-
 router.put('/:id', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
     const { rating, comment } = req.body;
     const user_id = req.user.id;
     
+    console.log('=== DEBUG: Updating review:', { id, rating, comment, user_id });
+    
+    // Validate rating if provided
+    if (rating && (rating < 1 || rating > 5)) {
+      return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    }
+    
     // Check if review exists and belongs to the user
-    const existingReview = await reviewsDB.getReviewById(id);
+    const existingReview = await getReviewById(parseInt(id));
+    console.log('=== DEBUG: Existing review:', existingReview);
+    
     if (!existingReview) {
       return res.status(404).json({ error: 'Review not found' });
     }
@@ -82,7 +125,9 @@ router.put('/:id', authenticateUser, async (req, res) => {
     }
     
     const updateData = { rating, comment };
-    const updatedReview = await reviewsDB.updateReview(id, user_id, updateData);
+    const updatedReview = await updateReview(parseInt(id), user_id, updateData);
+    
+    console.log('=== DEBUG: Updated review:', updatedReview);
     
     if (!updatedReview) {
       return res.status(404).json({ error: 'Failed to update review' });
@@ -90,7 +135,7 @@ router.put('/:id', authenticateUser, async (req, res) => {
     
     res.json(updatedReview);
   } catch (error) {
-    console.error('Error updating review:', error);
+    console.error('=== ERROR updating review:', error);
     res.status(500).json({ error: 'Failed to update review' });
   }
 });
@@ -101,8 +146,12 @@ router.delete('/:id', authenticateUser, async (req, res) => {
     const { id } = req.params;
     const user_id = req.user.id;
     
+    console.log('=== DEBUG: Deleting review:', { id, user_id });
+    
     // Check if review exists and belongs to the user
-    const existingReview = await reviewsDB.getReviewById(id);
+    const existingReview = await getReviewById(parseInt(id));
+    console.log('=== DEBUG: Existing review to delete:', existingReview);
+    
     if (!existingReview) {
       return res.status(404).json({ error: 'Review not found' });
     }
@@ -111,7 +160,9 @@ router.delete('/:id', authenticateUser, async (req, res) => {
       return res.status(403).json({ error: 'Unauthorized to delete this review' });
     }
     
-    const deletedReview = await reviewsDB.deleteReview(id, user_id);
+    const deletedReview = await deleteReview(parseInt(id), user_id);
+    
+    console.log('=== DEBUG: Deleted review:', deletedReview);
     
     if (!deletedReview) {
       return res.status(404).json({ error: 'Failed to delete review' });
@@ -119,10 +170,9 @@ router.delete('/:id', authenticateUser, async (req, res) => {
     
     res.json({ message: 'Review deleted successfully' });
   } catch (error) {
-    console.error('Error deleting review:', error);
+    console.error('=== ERROR deleting review:', error);
     res.status(500).json({ error: 'Failed to delete review' });
   }
-
 });
 
-module.exports = router;
+export default router;
