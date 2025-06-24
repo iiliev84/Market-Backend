@@ -24,13 +24,13 @@ router.route("/").post(async (req, res)=>{
       return res.status(400).send({error: "Missing req. body"})
     }
     
-    const {title, description, price} = req.body
+    const {title, image_url, description, price} = req.body
     
-    if(!title || !description || !price){
+    if(!title || !image_url || !description || !price){
       return res.status(400).send({error: "Missing required params"})
     }
 
-  const product = await createProduct({title, description, price})
+  const product = await createProduct({title, image_url, description, price})
 
   res.status(201).send(product)
 })
