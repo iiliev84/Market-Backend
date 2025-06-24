@@ -20,6 +20,7 @@ CREATE TABLE orders(
 CREATE TABLE products(
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
+    image_url TEXT NOT NULL,
     description TEXT NOT NULL,
     price DECIMAL NOT NULL
 );
