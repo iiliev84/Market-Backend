@@ -1,4 +1,5 @@
 import express from "express";
+import { verifyToken } from "../middleware.js";
 import {
   getReviewsByProduct,
   getUserReviewForProduct,
@@ -61,7 +62,7 @@ router.get('/product/:productId', async (req, res) => {
 });
 
 // create a new review 
-router.post('/', authenticateUser, async (req, res) => {
+router.post('/', verifyToken, authenticateUser, async (req, res) => {
   try {
     const { rating, comment, product_id } = req.body;
     const user_id = req.user.id; // From authentication middleware
@@ -99,7 +100,7 @@ router.post('/', authenticateUser, async (req, res) => {
 });
 
 // update a review 
-router.put('/:id', authenticateUser, async (req, res) => {
+router.put('/:id', verifyToken, authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
     const { rating, comment } = req.body;
@@ -140,8 +141,29 @@ router.put('/:id', authenticateUser, async (req, res) => {
   }
 });
 
+router.get('/user-product/:productId', verifyToken, authenticateUser, async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const user_id = req.user.id; 
+    
+    console.log('=== DEBUG: Fetching user review for product:', { productId, user_id });
+    
+    const review = await getUserReviewForProduct(user_id, parseInt(productId));
+    
+    if (!review) {
+      return res.status(404).json({ error: 'No review found' });
+    }
+    
+    console.log('=== DEBUG: User review found:', review);
+    res.json(review);
+  } catch (error) {
+    console.error('=== ERROR fetching user review for product:', error);
+    res.status(500).json({ error: 'Failed to fetch review' });
+  }
+});
+
 // remove a review 
-router.delete('/:id', authenticateUser, async (req, res) => {
+router.delete('/:id', verifyToken, authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
     const user_id = req.user.id;
