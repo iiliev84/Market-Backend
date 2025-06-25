@@ -6,12 +6,14 @@ import {
   getAllOrders,
   getOrderById,
   createOrder,
-  deleteOrder
+  deleteOrder,
+  getOrdersByUserId
 } from "#db/queries/orders";
 
-router.get("/", async (req, res, next) => {
+router.get("/", verifyToken, async (req, res, next) => {
   try {
-    const orders = await getAllOrders();
+    const userId = req.user.id;
+    const orders = await getOrdersByUserId(userId);
     res.send(orders);
   } catch (err) {
     next(err);
@@ -29,10 +31,10 @@ router.get("/:id", async (req, res, next) => {
 
 router.post("/", verifyToken, async (req, res, next) => {
   try {
-    const { user_id, date, note } = req.body;
+    const user_id = req.user.id;
+    const { date, note } = req.body;
 
     const newOrder = await createOrder({ user_id, date, note });
-
     res.send(newOrder);
   } catch (err) {
     next(err);
