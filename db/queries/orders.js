@@ -23,3 +23,12 @@ export async function deleteOrder(id) {
   const { rows: [deleted] } = await db.query(`DELETE FROM orders WHERE id = $1 RETURNING *;`, [id]);
   return deleted;
 }
+
+export async function getOrdersByUserId(user_id) {
+  const { rows } = await db.query(`
+    SELECT * FROM orders
+    WHERE user_id = $1
+    ORDER BY date DESC;
+  `, [user_id]);
+  return rows;
+}
