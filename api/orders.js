@@ -1,4 +1,5 @@
 import express from "express";
+import { verifyToken } from "../middleware.js"; 
 const router = express.Router();
 
 import {
@@ -26,11 +27,13 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", verifyToken, async (req, res, next) => {
   try {
     const { user_id, date, note } = req.body;
+
     const newOrder = await createOrder({ user_id, date, note });
-    res.status(201).send(newOrder);
+
+    res.send(newOrder);
   } catch (err) {
     next(err);
   }
